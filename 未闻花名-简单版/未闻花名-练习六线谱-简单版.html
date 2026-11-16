@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未闻花名 练习六线谱（简单版）</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #e8e8e8;
+    color: #111;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
+  }
+  body { padding: 16px 12px 120px; }
+  .sheet {
+    width: min(920px, 100%);
+    margin: 0 auto 22px;
+    background: #fff;
+    color: #111;
+    padding: 18px 36px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+    min-height: 1120px;
+  }
+  .rule {
+    height: 4px;
+    border-top: 2.5px solid #111;
+    border-bottom: 1px solid #111;
+    margin: 0 0 22px;
+    background: transparent;
+  }
+  .mast {
+    text-align: center;
+    margin: 8px 0 6px;
+  }
+  .ttl {
+    margin: 0;
+    font-size: 46px;
+    font-weight: 900;
+    letter-spacing: .14em;
+    line-height: 1.15;
+    color: #fff;
+    -webkit-text-stroke: 5px #111;
+    paint-order: stroke fill;
+    font-family: "Arial Black", "Microsoft YaHei", "PingFang SC", sans-serif;
+  }
+  .ttl-en {
+    margin: 2px 0 0;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: .02em;
+    line-height: 1.25;
+    color: #fff;
+    -webkit-text-stroke: 3.2px #111;
+    paint-order: stroke fill;
+    font-family: "Arial Black", "Microsoft YaHei", "PingFang SC", "Yu Gothic", sans-serif;
+  }
+  .ver { margin: 6px 0 14px; font-size: 13px; color: #111; }
+  .capo { font-size: 12px; margin: 0 0 4px; }
+  .legend { margin: 0 0 18px; }
+  .system {
+    margin: 0 0 56px;
+    cursor: pointer;
+  }
+  .system:last-child { margin-bottom: 12px; }
+  .system svg { display: block; width: 100%; height: auto; }
+  .sheet-foot {
+    text-align: center;
+    font-size: 12px;
+    color: #111;
+    margin-top: 36px;
+    padding-top: 8px;
+  }
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #3e6a96;
+    color: #fff;
+    z-index: 40;
+    box-shadow: 0 -1px 0 rgba(0,0,0,.12);
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+  .progress {
+    width: 100%;
+    height: 4px;
+    margin: 0;
+    background: rgba(255,255,255,.18);
+    cursor: pointer;
+    position: relative;
+    touch-action: none;
+  }
+  .progress .loop-band {
+    position: absolute; top: 0; bottom: 0;
+    background: rgba(214, 176, 74, .9);
+    pointer-events: none;
+  }
+  .progress .fill {
+    position: absolute; inset: 0 auto 0 0;
+    background: rgba(255,255,255,.75);
+  }
+  .progress .knob {
+    position: absolute; top: 50%;
+    width: 8px; height: 8px;
+    margin: -4px 0 0 -4px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.18);
+  }
+  .dock-inner {
+    width: 100%;
+    padding: 4px 16px 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .transport {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 4px;
+    min-width: 0;
+  }
+  .icon-btn, .speed-btn, .loop-ui button {
+    appearance: none;
+    font: inherit;
+    cursor: pointer;
+    color: #fff;
+  }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border: 0;
+    background: transparent;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+  .icon-btn:hover, .speed-btn:hover { background: rgba(255,255,255,.14); }
+  .icon-btn.on { background: #5487c6; }
+  .icon-btn svg { display: block; }
+  .speed-wrap { position: relative; }
+  .speed-btn {
+    border: 0;
+    background: transparent;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 52px;
+    justify-content: center;
+  }
+  .speed-btn.open { background: rgba(255,255,255,.14); }
+  .speed-btn .caret {
+    display: inline-block;
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: .9;
+  }
+  .clock {
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    color: rgba(255,255,255,.95);
+    letter-spacing: .03em;
+    margin: 0 4px 0 8px;
+    white-space: nowrap;
+  }
+  .pos-line {
+    font-size: 12px;
+    color: rgba(255,255,255,.82);
+    white-space: nowrap;
+    margin-left: 6px;
+  }
+  .loop-ui {
+    display: flex;
+    align-items: center;
+    gap: 6px 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #fff;
+  }
+  .loop-ui .field { display: flex; align-items: center; gap: 4px; }
+  .dock input[type="number"] {
+    width: 42px;
+    padding: 3px 4px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.5);
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    border-radius: 3px;
+    font: inherit;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .dock input[type="number"]:focus {
+    background: #fff;
+    color: #111;
+    outline: none;
+    border-color: #fff;
+  }
+  .loop-ui button {
+    border: 1px solid rgba(255,255,255,.55);
+    background: transparent;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .loop-ui button:hover { background: rgba(255,255,255,.14); }
+  .speed-pop {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 248px;
+    background: #fff;
+    color: #111;
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.2), 0 0 0 1px rgba(0,0,0,.06);
+    padding: 14px 16px 12px;
+    z-index: 60;
+    color-scheme: light;
+  }
+  .speed-pop.open { display: block; }
+  .speed-pop .lab {
+    font-size: 15px;
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+  .speed-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .speed-pop .step {
+    width: 28px; height: 28px;
+    border: 0;
+    background: #eeeeee;
+    color: #333;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    flex: 0 0 auto;
+    padding: 0;
+  }
+  .speed-pop .step:hover { background: #e2e2e2; }
+  .speed-pop input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    accent-color: #7f9bbc;
+    height: 22px;
+  }
+  .speed-pop .bpm-edit {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #444;
+  }
+  .speed-pop .bpm-edit input[type="number"] {
+    width: 64px;
+    background: #fff;
+    color: #111;
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+    font-size: 13px;
+  }
+  .presets {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .presets button {
+    flex: 1;
+    appearance: none;
+    font: inherit;
+    border: 1px solid #ddd;
+    background: #f6f6f6;
+    color: #111;
+    border-radius: 4px;
+    padding: 3px 0;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .presets button.on {
+    background: #3e6a96;
+    color: #fff;
+    border-color: #3e6a96;
+  }
+  @media (max-width: 700px) {
+    .sheet { padding: 14px 12px 20px; min-height: 0; }
+    .ttl { font-size: 32px; -webkit-text-stroke-width: 3.5px; }
+    .ttl-en { font-size: 16px; -webkit-text-stroke-width: 2.2px; }
+    .system { margin-bottom: 48px; }
+    .dock-inner { padding: 4px 10px 8px; gap: 6px 8px; }
+    .pos-line { display: none; }
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .dock { display: none !important; }
+    .sheet { box-shadow: none; margin: 0; width: auto; break-after: page; }
+  }
+</style>
+</head>
+<body>
+<div id="pages"></div>
+<div class="dock">
+  <div class="progress" id="progress" role="slider" aria-label="进度">
+    <div class="loop-band" id="loopBand" hidden></div>
+    <div class="fill" id="fill"></div>
+    <div class="knob" id="knob"></div>
+  </div>
+  <div class="dock-inner">
+    <div class="transport">
+      <button type="button" class="icon-btn" id="btnStop" title="停止" aria-label="停止">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="3.8" y="5" width="2.6" height="14" rx="0.4"/><path d="M8.2 12 L19.6 5.2 L19.6 18.8 Z"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="btnPlay" title="播放" aria-label="播放">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5.2 L19 12 L8 18.8 Z"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="btnLoop" title="循环" aria-label="循环" aria-pressed="false">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7.2 h8 V4.8 L21 8.2 16 11.6 V9.2 H8"/><path d="M16 16.8 H8 v2.4 L3 16.8 8 13.4 v2.4 h8"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="btnMetro" title="节拍器" aria-label="节拍器" aria-pressed="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M8.2 20 L11 4.2 h2 L16.8 20 Z"/><path d="M7.2 20.2 h9.6"/><path d="M12 7.5 L16.8 15"/><circle cx="17.2" cy="15.6" r="1.45" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <div class="speed-wrap">
+        <button type="button" class="speed-btn" id="btnSpeed" title="速度" aria-haspopup="dialog" aria-expanded="false">
+          <span id="speedVal">60</span><span class="caret"></span>
+        </button>
+        <div class="speed-pop" id="speedPop" role="dialog" aria-label="速度">
+          <p class="lab" id="speedRead">速度: 60拍/分</p>
+          <div class="speed-row">
+            <button type="button" class="step" id="bpmDown" aria-label="减慢">−</button>
+            <input id="bpmSlider" type="range" min="20" max="220" step="1" value="60">
+            <button type="button" class="step" id="bpmUp" aria-label="加快">+</button>
+          </div>
+          <div class="bpm-edit">BPM <input id="bpmInput" type="number" min="20" max="220" value="60"></div>
+          <div class="presets" id="presets">
+            <button type="button" data-bpm="40">40</button>
+            <button type="button" data-bpm="60" class="on">60</button>
+            <button type="button" data-bpm="80">80</button>
+            <button type="button" data-bpm="100">100</button>
+          </div>
+        </div>
+      </div>
+      <span class="clock" id="clock">00:00 / 00:00</span>
+    </div>
+    <div class="loop-ui">
+      <label class="field">第 <input id="loopStart" class="bar-num" type="number" min="1" max="49" value="1"> 到 <input id="loopEnd" class="bar-num" type="number" min="1" max="49" value="4"> 小节</label>
+      <button type="button" id="btnLoopStart" title="把当前小节设为循环起点">起点</button>
+      <button type="button" id="btnLoopEnd" title="把当前小节设为循环终点">终点</button>
+      <span class="pos-line" id="pos">第 1 小节</span>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const nt = (s, f, g) => g ? { s, f, g } : { s, f };
+  const ev = (t, d, n, k, tie) => {
+    const e = { t, d, n };
+    if (k) e.k = k;
+    if (tie) e.tie = true;
+    return e;
+  };
+  function swing(pairs) {
+    const out = [];
+    for (let i = 0; i < pairs.length; i++) {
+      const p = pairs[i];
+      out.push(ev(i, 0.75, p.a, p.k, p.tieA));
+      out.push(ev(i + 0.75, 0.25, p.b, undefined, p.tieB));
+    }
+    return out;
+  }
+
+  const themeA = swing([
+    { a: [nt(1, 2, "中"), nt(5, 0)], b: [nt(1, 4, "小")] },
+    { a: [nt(1, 4, "小")], b: [nt(1, 4, "小")] },
+    { a: [nt(1, 4, "小"), nt(5, 0)], b: [nt(1, 4, "小")], tieB: true },
+    { a: [nt(1, 4, "小")], b: [nt(1, 4, "小")], tieB: true },
+  ]);
+  const themeB = swing([
+    { a: [nt(1, 4, "小"), nt(5, 2, "食")], b: [nt(1, 2, "中")] },
+    { a: [nt(1, 2, "中")], b: [nt(1, 2, "中")] },
+    { a: [nt(1, 2, "中"), nt(5, 2, "食")], b: [nt(1, 2, "中")], tieB: true },
+    { a: [nt(1, 2, "中")], b: [nt(1, 2, "中")], tieB: true },
+  ]);
+  const themeC = swing([
+    { a: [nt(1, 2, "中"), nt(5, 4, "小")], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0), nt(5, 4, "小")], b: [nt(1, 0)], tieB: true },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+  ]);
+  const themeSlide = swing([
+    { a: [nt(1, 2, "中"), nt(5, 0)], b: [nt(1, 4, "中")], k: "S" },
+    { a: [nt(1, 4, "中")], b: [nt(1, 4, "中")] },
+    { a: [nt(1, 4, "中"), nt(5, 0)], b: [nt(1, 4, "中")] },
+    { a: [nt(1, 4, "中")], b: [nt(1, 7, "中")], k: "S", tieB: true },
+  ]);
+  const themeHigh = swing([
+    { a: [nt(1, 7, "中"), nt(6, 7, "食")], b: [nt(2, 9, "小")] },
+    { a: [nt(2, 9, "小")], b: [nt(2, 9, "小")] },
+    { a: [nt(2, 9, "小"), nt(6, 7, "食")], b: [nt(2, 9, "小")] },
+    { a: [nt(2, 7, "中")], b: [nt(1, 0)] },
+  ]);
+  const closeFour = [
+    ev(0, 1, [nt(1, 2), nt(5, 4, "小")]),
+    ev(1, 0.75, [nt(1, 4, "小")]),
+    ev(1.75, 0.25, [nt(1, 4, "小")], undefined, true),
+    ev(2, 1, [nt(1, 4, "小")]),
+    ev(3, 1, [nt(5, 4, "无")]),
+  ];
+  const arpeggioH = [
+    ev(0, 1, [nt(5, 2, "食")]),
+    ev(1, 1, [nt(4, 4, "小")]),
+    ev(2, 1, [nt(2, 0)]),
+    ev(3, 0.75, [nt(1, 2, "中")], "H"),
+    ev(3.75, 0.25, [nt(1, 4, "小")]),
+  ];
+  const arpeggioHold = [
+    ev(0, 1, [nt(1, 2, "中"), nt(5, 0)]),
+    ev(1, 0.75, [nt(1, 0)]),
+    ev(1.75, 0.25, [nt(1, 0)], undefined, true),
+    ev(2, 1, [nt(1, 0)]),
+    ev(3, 1, [nt(5, 0)]),
+  ];
+  const endingWalk = [
+    ev(0, 1, [nt(5, 2, "中")]),
+    ev(1, 1, [nt(4, 2, "无")]),
+    ev(2, 1, [nt(1, 0), nt(2, 0)]),
+    ev(3, 1, [nt(6, 0)]),
+  ];
+  const openSwing = swing([
+    { a: [nt(1, 0), nt(5, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+  ]);
+  const openSwingBass4 = swing([
+    { a: [nt(1, 0), nt(5, 4, "无")], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+    { a: [nt(1, 0)], b: [nt(1, 0)] },
+  ]);
+
+  const MEASURES = [
+    [ev(0, 1, []), ev(1, 1, []), ev(2, 0.5, []), ev(2.5, 0.5, [nt(2, 0)]), ev(3, 0.75, [nt(1, 0)]), ev(3.75, 0.25, [nt(1, 2, "中")])],
+    themeA, themeB, themeC,
+    swing([
+      { a: [nt(1, 0), nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(2, 0)], b: [nt(2, 0)] },
+      { a: [nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(1, 0)], b: [nt(1, 2, "中")] },
+    ]),
+    themeSlide, themeHigh, closeFour,
+    arpeggioH, arpeggioHold, arpeggioH,
+    [ev(0, 0.75, [nt(1, 2, "中"), nt(6, 0)]), ev(0.75, 0.25, [nt(1, 0)], undefined, true), ev(1, 0.75, [nt(1, 0)]), ev(1.75, 0.25, [nt(1, 0)]), ev(2, 1, [nt(1, 0)]), ev(3, 1, [nt(6, 0)])],
+    endingWalk, openSwing,
+    [ev(0, 0.75, [nt(1, 0), nt(5, 2, "食")]), ev(0.75, 0.25, [nt(1, 0)]), ev(1, 0.75, [nt(2, 4, "小")]), ev(1.75, 0.25, [nt(2, 0)]), ev(2, 1, [nt(2, 0)]), ev(3, 0.75, [nt(2, 0)]), ev(3.75, 0.25, [nt(2, 0)])],
+    openSwingBass4,
+    [ev(0, 0.75, [nt(1, 0), nt(5, 2, "食")]), ev(0.75, 0.25, [nt(1, 0)]), ev(1, 0.75, [nt(2, 4, "小")]), ev(1.75, 0.25, [nt(2, 0)]), ev(2, 1, [nt(2, 0)]), ev(3, 0.75, [nt(2, 0)]), ev(3.75, 0.25, [nt(2, 0)])],
+    openSwing,
+    [ev(0, 0.75, [nt(1, 2), nt(5, 2, "食")]), ev(0.75, 0.25, [nt(2, 0)]), ev(1, 0.5, [nt(2, 0)]), ev(1.5, 0.5, [nt(2, 0)]), ev(2, 1, [nt(2, 0)]), ev(3, 0.75, [nt(2, 0)]), ev(3.75, 0.25, [nt(3, 1, "食")])],
+    [ev(0, 1, [nt(2, 0), nt(5, 4, "小")]), ev(1, 0.75, [nt(2, 0)]), ev(1.75, 0.25, [nt(2, 2, "中")]), ev(2, 0.75, [nt(2, 2, "中")]), ev(2.75, 0.25, [nt(2, 2)]), ev(3, 1, [nt(5, 4, "小")])],
+    [ev(0, 1, [nt(5, 2, "食")]), ev(1, 1, [nt(4, 4, "小")]), ev(2, 1, [nt(2, 0)]), ev(3, 0.75, [nt(1, 2, "中"), nt(5, 2)], "H"), ev(3.75, 0.25, [nt(1, 4, "小")])],
+    [ev(0, 0.75, [nt(1, 2, "中"), nt(5, 0)]), ev(0.75, 0.25, [nt(1, 0)]), ev(1, 0.5, [nt(1, 0)]), ev(1.5, 0.5, [nt(2, 2, "中")]), ev(2, 1, [nt(2, 2)]), ev(3, 0.75, [nt(1, 2, "无")], "H"), ev(3.75, 0.25, [nt(1, 4, "小")])],
+    [ev(0, 0.75, [nt(1, 2), nt(5, 2, "食")]), ev(0.75, 0.25, [nt(1, 0)]), ev(1, 0.5, [nt(1, 0)]), ev(1.5, 0.5, [nt(2, 2, "中")]), ev(2, 1, [nt(2, 2)]), ev(3, 0.75, [nt(1, 2, "无")], "H"), ev(3.75, 0.25, [nt(1, 4, "小")])],
+    swing([
+      { a: [nt(1, 2, "中"), nt(5, 4, "小")], b: [nt(1, 0)] },
+      { a: [nt(1, 0)], b: [nt(2, 0)] },
+      { a: [nt(2, 0)], b: [nt(2, 0)] },
+      { a: [nt(2, 0)], b: [nt(3, 1, "食")] },
+    ]),
+    [ev(0, 1, [nt(2, 0), nt(6, 4, "无")]), ev(1, 0.5, [nt(2, 0)]), ev(1.5, 0.5, [nt(2, 2, "食")]), ev(2, 0.5, [nt(2, 2)]), ev(2.5, 0.5, [nt(2, 2)]), ev(3, 1, [nt(1, 4, "小"), nt(6, 4, "无")])],
+    [ev(0, 1, [nt(1, 2, "中"), nt(5, 0)]), ev(1, 0.75, [nt(1, 0)]), ev(1.75, 0.25, [nt(2, 2, "中")], undefined, true), ev(2, 1, [nt(2, 2, "中")]), ev(3, 0.75, [nt(1, 2, "无")], "H"), ev(3.75, 0.25, [nt(1, 4, "小")])],
+    [ev(0, 0.75, [nt(1, 2), nt(5, 2, "食")]), ev(0.75, 0.25, [nt(1, 0)]), ev(1, 0.5, [nt(1, 0)]), ev(1.5, 0.5, [nt(2, 2, "中")]), ev(2, 1, [nt(2, 2, "中")]), ev(3, 0.75, [nt(2, 2, "中")]), ev(3.75, 0.25, [nt(1, 2, "无")])],
+    [ev(0, 1, [nt(1, 0), nt(6, 0)]), ev(1, 1, [nt(5, 2, "中")]), ev(2, 1, [nt(4, 2, "无")]), ev(3, 1, [nt(6, 0)])],
+    [ev(0, 1, [nt(1, 0), nt(2, 0)]), ev(1, 1, []), ev(2, 1, [nt(2, 0)]), ev(3, 0.75, [nt(1, 0)]), ev(3.75, 0.25, [nt(1, 2, "中")])],
+    themeA, themeB, themeC,
+    swing([
+      { a: [nt(1, 0), nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(2, 0)], b: [nt(2, 0)] },
+      { a: [nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(1, 0)], b: [nt(1, 2, "中")] },
+    ]),
+    themeSlide, themeHigh,
+    [ev(0, 1, [nt(1, 2, "食"), nt(6, 0)]), ev(1, 0.75, [nt(1, 4, "小")]), ev(1.75, 0.25, [nt(1, 4, "小")], undefined, true), ev(2, 1, [nt(1, 4, "小")]), ev(3, 1, [nt(6, 0)])],
+    [ev(0, 1, [nt(6, 4, "无")]), ev(1, 1, [nt(6, 4, "无")]), ev(2, 0.75, [nt(5, 2, "食")]), ev(2.75, 0.25, [nt(2, 0)]), ev(3, 0.75, [nt(1, 0)]), ev(3.75, 0.25, [nt(1, 2, "中")])],
+    themeA, themeB, themeC,
+    swing([
+      { a: [nt(1, 0), nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(2, 0)], b: [nt(2, 0)] },
+      { a: [nt(5, 2, "食")], b: [nt(2, 0)] },
+      { a: [nt(1, 0)], b: [nt(1, 2, "中")] },
+    ]),
+    themeSlide, themeHigh, closeFour,
+    arpeggioH, arpeggioHold, arpeggioH,
+    [ev(0, 0.75, [nt(1, 2, "中"), nt(6, 0)]), ev(0.75, 0.25, [nt(1, 0)], undefined, true), ev(1, 0.75, [nt(1, 0)]), ev(1.75, 0.25, [nt(1, 0)]), ev(2, 1, [nt(1, 0)]), ev(3, 1, [nt(6, 0)])],
+    endingWalk,
+  ];
+
+  const TOTAL_BEATS = MEASURES.length * 4;
+  const N_BARS = MEASURES.length;
+  let loopOn = false, loopA = 1, loopB = 4;
+  function loopLo() { return Math.min(loopA, loopB); }
+  function loopHi() { return Math.max(loopA, loopB); }
+  function loopStartBeat() { return (loopLo() - 1) * 4; }
+  function loopEndBeat() { return loopHi() * 4; }
+  const OPEN_MIDI = [0, 64, 59, 55, 50, 45, 40];
+  const CAPO = 2;
+  const BARS_PER_LINE = 4;
+  const LINES_PER_PAGE = 3;
+  const SYS_W = 840;
+  const PAD_R = 10;
+  const TAB_W = 28;
+  const TIME_W = 22;
+  const LINE0 = 22;
+  const LG = 15;
+  const STEM_TOP_OFF = 3;
+  const BEAM_OFF = 28;
+  const SYS_H = LINE0 + 5 * LG + BEAM_OFF + 10;
+  const STORE = "guitar-practice-secret-base-v1";
+  const RED = "#ec7677";
+  const INK = "#111";
+
+  const yString = (s) => LINE0 + (s - 1) * LG;
+  const stemTop = () => yString(6) + STEM_TOP_OFF;
+  const beamY = () => yString(6) + BEAM_OFF;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const midiOf = (s, f) => OPEN_MIDI[s] + CAPO + f;
+  const freqOf = (s, f) => 440 * Math.pow(2, (midiOf(s, f) - 69) / 12);
+
+  function barWidth(hasTime) {
+    const left = hasTime ? TAB_W + TIME_W : TAB_W;
+    return (SYS_W - left - PAD_R) / BARS_PER_LINE;
+  }
+  function leftPad(hasTime) { return hasTime ? TAB_W + TIME_W : TAB_W; }
+  function xAt(hasTime, barInLine, t) {
+    const bw = barWidth(hasTime);
+    const inset = 16;
+    return leftPad(hasTime) + barInLine * bw + inset + (t / 4) * (bw - inset - 14);
+  }
+  function visualT(evs, i) {
+    const e = evs[i];
+    const beat = Math.floor(e.t + 1e-6);
+    const frac = e.t - beat;
+    if (e.d <= 0.26 && Math.abs(frac - 0.75) < 0.02) {
+      const prev = evs[i - 1];
+      if (prev && prev.d >= 0.7 && Math.abs(prev.t - beat) < 0.02) return beat + 0.62;
+    }
+    return e.t;
+  }
+  function xv(hasTime, barInLine, evs, i) {
+    return xAt(hasTime, barInLine, visualT(evs, i));
+  }
+  function sysWidth(nBars, hasTime) {
+    if (nBars >= BARS_PER_LINE) return SYS_W;
+    return leftPad(hasTime) + barWidth(hasTime) * nBars + PAD_R;
+  }
+
+  function eventAt(beat) {
+    if (beat < 0 || beat >= TOTAL_BEATS) return null;
+    const mi = Math.min(MEASURES.length - 1, Math.floor(beat / 4));
+    const local = beat - mi * 4;
+    const bar = MEASURES[mi];
+    for (let i = 0; i < bar.length; i++) {
+      const e = bar[i];
+      if (local + 1e-6 >= e.t && local < e.t + e.d) return { mi, e, gi: mi * 4 + e.t };
+    }
+    return null;
+  }
+
+  function beamGroups(evs) {
+    const beamed = [];
+    let group = [];
+    const flush = () => { if (group.length >= 2) beamed.push(group.slice()); group = []; };
+    evs.forEach((e, i) => {
+      const canBeam = e.n.length > 0 && e.d <= 0.75;
+      if (canBeam) {
+        if (group.length) {
+          const prev = evs[group[group.length - 1]];
+          const gap = e.t - (prev.t + prev.d) > 0.03;
+          const newBeat = Math.floor(e.t + 1e-6) !== Math.floor(prev.t + 1e-6);
+          if (gap || newBeat) flush();
+        }
+        group.push(i);
+      } else flush();
+    });
+    flush();
+    return beamed;
+  }
+
+  function restGlyph(x, d) {
+    const cy = (yString(2) + yString(3)) / 2;
+    if (d >= 1) {
+      // quarter rest: thick zigzag
+      return `<path d="M ${x - 0.5} ${cy - 11} L ${x + 5} ${cy - 7} L ${x - 2} ${cy - 2} L ${x + 5} ${cy + 3.5} Q ${x + 7} ${cy + 7}, ${x + 1} ${cy + 10} L ${x - 2.5} ${cy + 12.5}" fill="none" stroke="${INK}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    // eighth rest: vertical + S-curve ending in filled oval (standard print shape)
+    let s = `<path d="M ${x + 3} ${cy - 12} C ${x + 10} ${cy - 10}, ${x + 11} ${cy - 3}, ${x + 5} ${cy + 1} C ${x + 1} ${cy + 4}, ${x + 2} ${cy + 9}, ${x + 7} ${cy + 11}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`;
+    s += `<ellipse cx="${x + 7.2}" cy="${cy + 11.2}" rx="2.6" ry="2.1" fill="${INK}"/>`;
+    if (d >= 0.7) s += `<circle cx="${x + 11}" cy="${cy + 2}" r="1.25" fill="${INK}"/>`;
+    return s;
+  }
+
+  function drawTabClef(hasTime) {
+    const mid12 = (yString(1) + yString(2)) / 2 + 4;
+    const mid34 = (yString(3) + yString(4)) / 2 + 4;
+    const mid56 = (yString(5) + yString(6)) / 2 + 4;
+    const font = `font-size="14" font-weight="700" font-family="Times New Roman, Times, Georgia, serif" fill="${INK}"`;
+    let s = `<text x="2" y="${mid12}" ${font}>T</text>`;
+    s += `<text x="2" y="${mid34}" ${font}>A</text>`;
+    s += `<text x="2" y="${mid56}" ${font}>B</text>`;
+    if (hasTime) {
+      const tx = TAB_W + 1;
+      const tf = `font-size="20" font-weight="700" font-family="Times New Roman, Times, Georgia, serif" fill="${INK}"`;
+      s += `<text x="${tx}" y="${yString(2) + 5}" ${tf}>4</text>`;
+      s += `<text x="${tx}" y="${yString(5) + 5}" ${tf}>4</text>`;
+    }
+    return s;
+  }
+
+  function drawLegend() {
+    const by = 26, sy = 8;
+    return `<svg class="legend" viewBox="0 0 64 32" width="64" height="32" aria-hidden="true">
+      <line x1="12" x2="12" y1="${sy}" y2="${by}" stroke="${INK}" stroke-width="1.3"/>
+      <line x1="38" x2="38" y1="${sy}" y2="${by}" stroke="${INK}" stroke-width="1.3"/>
+      <line x1="12" x2="38" y1="${by}" y2="${by}" stroke="${INK}" stroke-width="3.2" stroke-linecap="square"/>
+      <line x1="27" x2="38" y1="${by - 6}" y2="${by - 6}" stroke="${INK}" stroke-width="2.2" stroke-linecap="square"/>
+      <ellipse cx="12" cy="${sy}" rx="4" ry="2.8" fill="${INK}"/>
+      <ellipse cx="38" cy="${sy}" rx="4" ry="2.8" fill="${INK}"/>
+      <circle cx="18.5" cy="${sy}" r="1.3" fill="${INK}"/>
+    </svg>`;
+  }
+
+  function slur(x1, x2, y) {
+    let xa = x1, xb = x2;
+    if (xb - xa < 16) { const mid = (xa + xb) / 2; xa = mid - 8; xb = mid + 8; }
+    const L = xb - xa;
+    const rise = Math.min(10, Math.max(5.5, L * 0.22));
+    return `<path d="M ${xa} ${y} C ${xa + L * 0.28} ${y - rise}, ${xa + L * 0.72} ${y - rise}, ${xb} ${y}" fill="none" stroke="${INK}" stroke-width="1.15" stroke-linecap="round"/>`;
+  }
+
+  function systemSVG(startIdx, nBars, hasTime, currentBeat) {
+    const w = sysWidth(nBars, hasTime);
+    const y1 = yString(1), y6 = yString(6);
+    const bw = barWidth(hasTime);
+    const lp = leftPad(hasTime);
+    const st = stemTop(), by = beamY();
+    let inner = "";
+    const staffEnd = lp + bw * nBars;
+    // Collect note x positions per string so staff lines can break around numbers
+    const gapsByString = {1:[],2:[],3:[],4:[],5:[],6:[]};
+    for (let b = 0; b < nBars; b++) {
+      const evs = MEASURES[startIdx + b];
+      evs.forEach((e, i) => {
+        if (!e.n.length) return;
+        const x = xv(hasTime, b, evs, i);
+        const r = e.d === 0.75 ? 13.5 : 9.5;
+        e.n.forEach((nn) => gapsByString[nn.s].push([x - 9.5, x + r]));
+      });
+    }
+    function drawStaffSegs(s) {
+      const y = yString(s);
+      const gaps = gapsByString[s].slice().sort((a,b)=>a[0]-b[0]);
+      const merged = [];
+      gaps.forEach(([a,b]) => {
+        if (!merged.length || a > merged[merged.length-1][1] + 7) merged.push([a,b]);
+        else merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], b);
+      });
+      let x = 2;
+      let out = "";
+      merged.forEach(([a,b]) => {
+        const xa = Math.max(x, Math.min(a, staffEnd));
+        if (xa - x > 0.8) out += `<line x1="${x}" x2="${xa}" y1="${y}" y2="${y}" stroke="${INK}" stroke-width="0.95"/>`;
+        x = Math.max(x, b);
+      });
+      if (staffEnd - x > 0.8) out += `<line x1="${x}" x2="${staffEnd}" y1="${y}" y2="${y}" stroke="${INK}" stroke-width="0.95"/>`;
+      return out;
+    }
+    for (let b = 0; b < nBars; b++) {
+      const mi = startIdx + b;
+      const xStart = lp + b * bw;
+      const inLoop = loopOn && mi + 1 >= loopLo() && mi + 1 <= loopHi();
+      const isCur = currentBeat >= mi * 4 && currentBeat < (mi + 1) * 4;
+      if (inLoop) {
+        inner += `<rect x="${xStart}" y="${LINE0 - 14}" width="${bw}" height="${by + 8 - (LINE0 - 14)}" fill="#efe3a8" fill-opacity="0.5"/>`;
+      }
+      if (isCur) {
+        inner += `<rect x="${xStart}" y="${LINE0 - 14}" width="${bw}" height="${by + 8 - (LINE0 - 14)}" fill="#fff3a0"/>`;
+      }
+    }
+    for (let s = 1; s <= 6; s++) inner += drawStaffSegs(s);
+    inner += drawTabClef(hasTime);
+    inner += `<line x1="${lp}" x2="${lp}" y1="${y1}" y2="${y6}" stroke="${INK}" stroke-width="1.25"/>`;
+
+    for (let b = 0; b < nBars; b++) {
+      const mi = startIdx + b;
+      const evs = MEASURES[mi];
+      const xEnd = lp + (b + 1) * bw;
+      const xStart = lp + b * bw;
+      const isLastPiece = mi === MEASURES.length - 1;
+      if (isLastPiece) {
+        inner += `<line x1="${xEnd - 4}" x2="${xEnd - 4}" y1="${y1}" y2="${y6}" stroke="${INK}" stroke-width="1.15"/>`;
+        inner += `<line x1="${xEnd}" x2="${xEnd}" y1="${y1}" y2="${y6}" stroke="${INK}" stroke-width="3.2"/>`;
+      } else {
+        inner += `<line x1="${xEnd}" x2="${xEnd}" y1="${y1}" y2="${y6}" stroke="${INK}" stroke-width="1.25"/>`;
+      }
+
+      const active = currentBeat >= mi * 4 && currentBeat < (mi + 1) * 4;
+      const local = active ? currentBeat - mi * 4 : -1;
+      const beamed = beamGroups(evs);
+      const beamedSet = new Set();
+      beamed.forEach((g) => g.forEach((i) => beamedSet.add(i)));
+
+      evs.forEach((e, i) => {
+        const x = e.n.length ? xv(hasTime, b, evs, i) : xAt(hasTime, b, e.t);
+        if (e.n.length === 0) {
+          inner += restGlyph(x, e.d);
+          return;
+        }
+        const topS = Math.min(...e.n.map((nn) => nn.s));
+        const stemFrom = yString(topS) + 6;
+        inner += `<line x1="${x}" x2="${x}" y1="${stemFrom}" y2="${by}" stroke="${INK}" stroke-width="1.2"/>`;
+        if (e.d <= 0.5 && !beamedSet.has(i)) {
+          // eighth flag: thin hook to the right, opening upward
+          const fy = by;
+          inner += `<path d="M ${x} ${fy} C ${x + 9} ${fy + 0.5}, ${x + 11} ${fy - 8}, ${x + 4.5} ${fy - 15}" fill="none" stroke="${INK}" stroke-width="1.45" stroke-linecap="round"/>`;
+          if (e.d <= 0.25) inner += `<path d="M ${x} ${fy - 6} C ${x + 8} ${fy - 5.5}, ${x + 10} ${fy - 12}, ${x + 4} ${fy - 18}" fill="none" stroke="${INK}" stroke-width="1.25" stroke-linecap="round"/>`;
+        }
+        e.n.forEach((nn) => {
+          const y = yString(nn.s);
+          // wide white knockout so staff lines don't read as dashes between numbers
+          const koW = e.d === 0.75 ? 22 : 18;
+          inner += `<rect x="${x - 9}" y="${y - 8}" width="${koW}" height="16" rx="1" fill="#fff"/>`;
+          inner += `<text x="${x}" y="${y + 4.4}" text-anchor="middle" fill="${INK}" font-size="15.5" font-weight="700" font-family="Arial, Helvetica, sans-serif">${nn.f}</text>`;
+          if (e.d === 0.75) inner += `<circle cx="${x + 10.5}" cy="${y + 5}" r="1.35" fill="${INK}"/>`;
+
+        });
+        if (e.k) {
+          inner += `<text x="${x}" y="${LINE0 - 8}" text-anchor="middle" fill="${INK}" font-size="13" font-style="italic" font-weight="700" font-family="Times New Roman, Times, serif">${e.k}</text>`;
+        }
+        if (e.tie) {
+          const next = evs[i + 1];
+          const x2 = next ? xv(hasTime, b, evs, i + 1) - 6 : xEnd - 3;
+          inner += slur(x + 7, x2, LINE0 - 9);
+        }
+      });
+
+      const prevBar = mi > 0 ? MEASURES[mi - 1] : null;
+      if (prevBar && prevBar.length && prevBar[prevBar.length - 1].tie) {
+        const fi = evs.findIndex((e) => e.n.length);
+        if (fi >= 0) inner += slur(xStart + 3, xv(hasTime, b, evs, fi) - 6, LINE0 - 9);
+      }
+
+      beamed.forEach((g) => {
+        const x1 = xv(hasTime, b, evs, g[0]);
+        const x2 = xv(hasTime, b, evs, g[g.length - 1]);
+        inner += `<line x1="${x1}" x2="${x2}" y1="${by}" y2="${by}" stroke="${INK}" stroke-width="3.6" stroke-linecap="square"/>`;
+        g.filter((i) => evs[i].d <= 0.25).forEach((i) => {
+          const xe = xv(hasTime, b, evs, i);
+          const prevI = i - 1;
+          const xa = prevI >= 0 && evs[prevI].d >= 0.75 ? (xv(hasTime, b, evs, prevI) + xe) / 2 : xe - 8;
+          inner += `<line x1="${xa}" x2="${xe}" y1="${by - 6}" y2="${by - 6}" stroke="${INK}" stroke-width="2.4" stroke-linecap="square"/>`;
+        });
+      });
+
+      if (active) {
+        const px = xAt(hasTime, b, local);
+        inner += `<line x1="${px}" x2="${px}" y1="${LINE0 - 12}" y2="${by + 6}" stroke="#2ec4d6" stroke-width="1.4"/>`;
+      }
+    }
+
+    const pct = (w / SYS_W) * 100;
+    return `<svg viewBox="0 0 ${w} ${SYS_H}" style="width:${pct}%;max-width:100%" height="auto" data-start="${startIdx}" data-nbars="${nBars}" data-hastime="${hasTime ? 1 : 0}" preserveAspectRatio="xMinYMin meet">${inner}</svg>`;
+  }
+
+  // Build pages
+  const pagesEl = document.getElementById("pages");
+  const nSys = Math.ceil(MEASURES.length / BARS_PER_LINE);
+  const systems = [];
+  for (let si = 0; si < nSys; si++) {
+    const start = si * BARS_PER_LINE;
+    const nBars = Math.min(BARS_PER_LINE, MEASURES.length - start);
+    systems.push({ start, nBars, hasTime: si === 0, si });
+  }
+  const nPages = Math.ceil(systems.length / LINES_PER_PAGE);
+  const sysEls = [];
+
+  function pageFooter(p) {
+    return `<div class="sheet-foot">未闻花名-secret base〜君がくれたもの（简单版）${p + 1}/${nPages}</div>`;
+  }
+
+  for (let p = 0; p < nPages; p++) {
+    const sheet = document.createElement("section");
+    sheet.className = "sheet";
+    sheet.dataset.page = String(p);
+    let htmlp = `<div class="rule"></div>`;
+    if (p === 0) {
+      htmlp += `<div class="mast"><h1 class="ttl">未闻花名</h1><p class="ttl-en">secret base〜君がくれたもの</p><p class="ver">（简单版）</p></div>`;
+      htmlp += `<p class="capo">变调夹夹2品是原调</p>${drawLegend()}`;
+    }
+    const wrap = document.createElement("div");
+    wrap.innerHTML = htmlp;
+    sheet.appendChild(wrap);
+    const slice = systems.slice(p * LINES_PER_PAGE, (p + 1) * LINES_PER_PAGE);
+    slice.forEach((sys) => {
+      const div = document.createElement("div");
+      div.className = "system";
+      div.dataset.start = String(sys.start);
+      div.innerHTML = systemSVG(sys.start, sys.nBars, sys.hasTime, -1);
+      const onSeek = (ev) => {
+        const svg = div.querySelector("svg");
+        const r = svg.getBoundingClientRect();
+        const x = ((ev.clientX - r.left) / r.width) * Number(svg.viewBox.baseVal.width);
+        const hasTime = sys.hasTime;
+        const lp = leftPad(hasTime);
+        const bw = barWidth(hasTime);
+        let b = Math.floor((x - lp) / bw);
+        b = clamp(b, 0, sys.nBars - 1);
+        const barNo = sys.start + b + 1;
+        if (ev.shiftKey) { applyLoop({ on: true, a: barNo }); return; }
+        if (ev.altKey) { applyLoop({ on: true, b: barNo }); return; }
+        const t = clamp((x - (lp + b * bw)) / bw * 4, 0, 3.99);
+        seek((sys.start + b) * 4 + t);
+      };
+      div.addEventListener("click", onSeek);
+      sheet.appendChild(div);
+      sysEls.push(div);
+    });
+    const foot = document.createElement("div");
+    foot.innerHTML = pageFooter(p);
+    sheet.appendChild(foot.firstChild);
+    pagesEl.appendChild(sheet);
+  }
+
+  let bpm = 60, playing = false, beat = 0, metro = true;
+  let raf = 0, originBeat = 0, t0 = 0;
+  let audio = null, lastClick = -1, lastTone = -1, lastSys = -1;
+  const playingRef = { v: false };
+
+  function loadPrefs() {
+    try {
+      const p = JSON.parse(localStorage.getItem(STORE) || "{}");
+      if (p.bpm) bpm = clamp(Number(p.bpm), 20, 220);
+      if (typeof p.metro === "boolean") metro = p.metro;
+      if (typeof p.loopOn === "boolean") loopOn = p.loopOn;
+      if (p.loopA) loopA = clamp(Number(p.loopA), 1, N_BARS);
+      if (p.loopB) loopB = clamp(Number(p.loopB), 1, N_BARS);
+    } catch {}
+  }
+  function savePrefs() {
+    try { localStorage.setItem(STORE, JSON.stringify({ bpm, metro, loopOn, loopA, loopB })); } catch {}
+  }
+  loadPrefs();
+
+  const ICON_PLAY = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5.2 L19 12 L8 18.8 Z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="3.6" height="14" rx="0.6"/><rect x="14.4" y="5" width="3.6" height="14" rx="0.6"/></svg>';
+  const bpmInput = document.getElementById("bpmInput");
+  const bpmSlider = document.getElementById("bpmSlider");
+  const btnPlay = document.getElementById("btnPlay");
+  const btnLoop = document.getElementById("btnLoop");
+  const btnMetro = document.getElementById("btnMetro");
+  const btnSpeed = document.getElementById("btnSpeed");
+  const speedPop = document.getElementById("speedPop");
+  const loopStartEl = document.getElementById("loopStart");
+  const loopEndEl = document.getElementById("loopEnd");
+  const loopBand = document.getElementById("loopBand");
+  function syncSpeedUI() {
+    bpmInput.value = String(bpm);
+    bpmSlider.value = String(bpm);
+    document.getElementById("speedVal").textContent = String(bpm);
+    document.getElementById("speedRead").textContent = "速度: " + bpm + "拍/分";
+    document.querySelectorAll("#presets button").forEach((b) => {
+      b.classList.toggle("on", Number(b.dataset.bpm) === bpm);
+    });
+  }
+  function syncLoopInputs() {
+    btnLoop.classList.toggle("on", loopOn);
+    btnLoop.setAttribute("aria-pressed", loopOn ? "true" : "false");
+    loopStartEl.value = String(loopA);
+    loopEndEl.value = String(loopB);
+    loopStartEl.max = String(N_BARS);
+    loopEndEl.max = String(N_BARS);
+  }
+  function syncMetroUI() {
+    btnMetro.classList.toggle("on", metro);
+    btnMetro.setAttribute("aria-pressed", metro ? "true" : "false");
+  }
+  syncSpeedUI();
+  syncLoopInputs();
+  syncMetroUI();
+
+  function ensureAudio() {
+    if (!audio) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audio = new AC();
+    }
+    if (audio && audio.state === "suspended") audio.resume();
+    return audio;
+  }
+  function beep(freq, dur, gain) {
+    if (!audio) return;
+    try {
+      const osc = audio.createOscillator(), g = audio.createGain();
+      osc.type = "square"; osc.frequency.value = freq;
+      g.gain.setValueAtTime(gain, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
+      osc.connect(g); g.connect(audio.destination);
+      osc.start(); osc.stop(audio.currentTime + dur);
+    } catch {}
+  }
+  function playPitches(notes) {
+    if (!audio || !notes.length) return;
+    try {
+      const now = audio.currentTime;
+      notes.forEach((nn) => {
+        const osc = audio.createOscillator(), g = audio.createGain();
+        osc.type = "triangle"; osc.frequency.value = freqOf(nn.s, nn.f);
+        g.gain.setValueAtTime(0.08, now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+        osc.connect(g); g.connect(audio.destination);
+        osc.start(now); osc.stop(now + 0.45);
+      });
+    } catch {}
+  }
+
+  function fmtTime(beats) {
+    const sec = Math.max(0, beats) * 60 / bpm;
+    const s = Math.floor(sec + 1e-9);
+    const m = Math.floor(s / 60);
+    return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }
+  function render() {
+    const capped = Math.min(beat, TOTAL_BEATS);
+    const mi = Math.min(MEASURES.length - 1, Math.floor(Math.min(capped, TOTAL_BEATS - 0.001) / 4));
+    const localBeat = capped - mi * 4;
+    let posText = `第 ${mi + 1} 小节 第 ${Math.min(4, Math.floor(localBeat) + 1)} 拍`;
+    if (loopOn) posText = `循环 ${loopLo()}–${loopHi()} · ` + posText;
+    document.getElementById("pos").textContent = posText;
+    document.getElementById("clock").textContent = fmtTime(capped) + " / " + fmtTime(TOTAL_BEATS);
+
+    const p = clamp(beat / TOTAL_BEATS, 0, 1);
+    document.getElementById("fill").style.width = (p * 100) + "%";
+    document.getElementById("knob").style.left = (p * 100) + "%";
+    if (loopOn) {
+      const a = loopStartBeat() / TOTAL_BEATS * 100;
+      const b = loopEndBeat() / TOTAL_BEATS * 100;
+      loopBand.hidden = false;
+      loopBand.style.left = a + "%";
+      loopBand.style.width = (b - a) + "%";
+    } else {
+      loopBand.hidden = true;
+    }
+
+    const sysi = Math.min(systems.length - 1, Math.floor(mi / BARS_PER_LINE));
+    sysEls.forEach((div, i) => {
+      const sys = systems[i];
+      const on = mi >= sys.start && mi < sys.start + sys.nBars;
+      if (on || div.dataset.dirty === "1") {
+        div.innerHTML = systemSVG(sys.start, sys.nBars, sys.hasTime, beat);
+        div.dataset.dirty = on ? "1" : "0";
+      }
+    });
+    if (sysi !== lastSys) {
+      lastSys = sysi;
+      sysEls[sysi].scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    btnPlay.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    btnPlay.title = playing ? "暂停" : "播放";
+    btnPlay.setAttribute("aria-label", playing ? "暂停" : "播放");
+  }
+
+  function tick(now) {
+    if (!playingRef.v) return;
+    let next = originBeat + ((now - t0) / 1000) * (bpm / 60);
+    if (loopOn) {
+      const a = loopStartBeat(), z = loopEndBeat(), len = z - a;
+      if (len > 0 && next >= z) {
+        next = a + ((next - a) % len);
+        originBeat = next;
+        t0 = now;
+        lastClick = Math.floor(next + 1e-6) - 1;
+      }
+    } else if (next >= TOTAL_BEATS) {
+      beat = TOTAL_BEATS;
+      stopPlay(false);
+      render();
+      return;
+    }
+    beat = next;
+    const ib = Math.floor(next + 1e-6);
+    if (metro && ib !== lastClick && ib < TOTAL_BEATS) {
+      lastClick = ib;
+      beep(ib % 4 === 0 ? 1320 : 880, 0.05, ib % 4 === 0 ? 0.07 : 0.04);
+    }
+    /* 只播放节拍器，不播出音高 */
+    render();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play() {
+    ensureAudio();
+    if (loopOn) {
+      if (beat < loopStartBeat() || beat >= loopEndBeat() - 1e-6) seek(loopStartBeat());
+    } else if (beat >= TOTAL_BEATS) seek(0);
+    playing = playingRef.v = true;
+    originBeat = beat;
+    t0 = performance.now();
+    raf = requestAnimationFrame(tick);
+    render();
+  }
+  function pause() {
+    playing = playingRef.v = false;
+    if (raf) cancelAnimationFrame(raf);
+    render();
+  }
+  function stopPlay(reset) {
+    playing = playingRef.v = false;
+    if (raf) cancelAnimationFrame(raf);
+    if (reset !== false) seek(loopOn ? loopStartBeat() : 0);
+  }
+  function seek(b) {
+    beat = clamp(b, 0, TOTAL_BEATS);
+    lastClick = Math.floor(beat) - 1;
+    lastTone = -1;
+    lastSys = -1;
+    if (playing) { originBeat = beat; t0 = performance.now(); }
+    render();
+  }
+
+  function setBpm(n) {
+    if (!Number.isFinite(Number(n))) return;
+    bpm = clamp(Math.round(Number(n)), 20, 220);
+    syncSpeedUI();
+    if (playing) { originBeat = beat; t0 = performance.now(); }
+    savePrefs();
+    render();
+  }
+  function closeSpeed() {
+    speedPop.classList.remove("open");
+    btnSpeed.classList.remove("open");
+    btnSpeed.setAttribute("aria-expanded", "false");
+  }
+  function toggleSpeed(e) {
+    if (e) e.stopPropagation();
+    const open = !speedPop.classList.contains("open");
+    speedPop.classList.toggle("open", open);
+    btnSpeed.classList.toggle("open", open);
+    btnSpeed.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  btnPlay.onclick = () => { playing ? pause() : play(); };
+  document.getElementById("btnStop").onclick = () => { stopPlay(true); render(); };
+  btnLoop.onclick = () => applyLoop({ on: !loopOn });
+  btnMetro.onclick = () => { metro = !metro; syncMetroUI(); savePrefs(); };
+  btnSpeed.onclick = toggleSpeed;
+  speedPop.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", () => closeSpeed());
+  bpmInput.onchange = () => setBpm(bpmInput.value);
+  bpmSlider.oninput = () => setBpm(bpmSlider.value);
+  document.getElementById("bpmDown").onclick = () => setBpm(bpm - 1);
+  document.getElementById("bpmUp").onclick = () => setBpm(bpm + 1);
+  document.querySelectorAll("#presets button").forEach((b) => {
+    b.onclick = () => setBpm(Number(b.dataset.bpm));
+  });
+
+  function markAllDirty() { sysEls.forEach((d) => { d.dataset.dirty = "1"; }); }
+  function applyLoop(opts) {
+    loopA = clamp(Math.round(Number(loopStartEl.value) || loopA), 1, N_BARS);
+    loopB = clamp(Math.round(Number(loopEndEl.value) || loopB), 1, N_BARS);
+    if (opts && opts.on != null) loopOn = !!opts.on;
+    if (opts && opts.a) loopA = clamp(opts.a, 1, N_BARS);
+    if (opts && opts.b) loopB = clamp(opts.b, 1, N_BARS);
+    syncLoopInputs();
+    markAllDirty();
+    lastSys = -1;
+    if (loopOn && (beat < loopStartBeat() || beat >= loopEndBeat())) seek(loopStartBeat());
+    else render();
+    savePrefs();
+  }
+  loopStartEl.onchange = () => applyLoop({});
+  loopEndEl.onchange = () => applyLoop({});
+  document.getElementById("btnLoopStart").onclick = () => {
+    applyLoop({ on: true, a: Math.floor(Math.min(beat, TOTAL_BEATS - 1e-6) / 4) + 1 });
+  };
+  document.getElementById("btnLoopEnd").onclick = () => {
+    applyLoop({ on: true, b: Math.floor(Math.min(beat, TOTAL_BEATS - 1e-6) / 4) + 1 });
+  };
+
+  const progress = document.getElementById("progress");
+  function seekFromEvent(e) {
+    const r = progress.getBoundingClientRect();
+    const x = (e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0);
+    seek(clamp((x - r.left) / r.width, 0, 1) * TOTAL_BEATS);
+  }
+  progress.addEventListener("pointerdown", (e) => { progress.setPointerCapture(e.pointerId); seekFromEvent(e); });
+  progress.addEventListener("pointermove", (e) => { if (e.buttons) seekFromEvent(e); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT")) return;
+    if (e.key === "Escape" && speedPop.classList.contains("open")) { closeSpeed(); return; }
+    if (e.code === "Space") { e.preventDefault(); playing ? pause() : play(); }
+    else if (e.key === "s" || e.key === "S" || e.key === "Escape") { stopPlay(true); render(); }
+    else if (e.key === "ArrowLeft") {
+      let m = Math.floor(beat / 4) - 1;
+      if (loopOn && m < loopLo() - 1) m = loopHi() - 1;
+      seek(Math.max(0, m) * 4);
+    } else if (e.key === "ArrowRight") {
+      let m = Math.floor(Math.min(beat, TOTAL_BEATS - 0.001) / 4) + 1;
+      if (loopOn && m > loopHi() - 1) m = loopLo() - 1;
+      seek(Math.min(m, N_BARS - 1) * 4);
+    }
+  });
+
+  if (loopOn && (beat < loopStartBeat() || beat >= loopEndBeat())) beat = loopStartBeat();
+  render();
+})();
+</script>
+</body>
+</html>
